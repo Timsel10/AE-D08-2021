@@ -174,5 +174,41 @@ class singleDOFsystem:
     def solveODE(self):
         raise NotImplementedError
         return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        raise NotImplementedError
+        return interp1d(...)
+
+    def solveODE(self):
+        raise NotImplementedError
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
 
 
