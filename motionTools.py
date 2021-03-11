@@ -30,9 +30,27 @@ def forced_mass_spring_damper(t, y, c, k, x_forced, v_forced):
 
 
 class headMotion:
-    def __init__(self, simMotionFile, headMotionFile):
-        simulatorMotion = np.genfromtxt(simMotionFile, skip_header = 1)
+    def __init__(self, simMotionArray, headMotionFile):
+        """
+        Inputs:
+        simMotionArray is a numpy array
+        headMotionFile is a string which is the path to the headMotionFile
+
+        simMotion path isn't needed to reduce the number of times that file is loaded
+        """
+        simMotion = simMotionArray
         headMotion = np.genfromtxt(headMotionFile, skip_header = 1)
+        headMotion.sync_head_motion()
+        simMotion.transform()
+        headMotion.transform()
+
+    def sync_head_motion():
+        # to be copied from sync.py or imported and run from there
+        raise NotImplementedError
+
+    def transform():
+        # to be copied from transform.py or imported and run from there
+        raise NotImplementedError
 
 
 class singleDOFsystem:
@@ -42,6 +60,8 @@ class singleDOFsystem:
 
     def interpolate(self):
         """
+        Inputs:
+        Interpolating 
         """
         raise NotImplementedError
         return interp1d(...)

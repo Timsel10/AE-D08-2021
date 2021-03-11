@@ -1,21 +1,67 @@
-#import numpy as np
-#import math
+import numpy as np
+import math as m
 import os
 
-folder = os.listdir("data")
-Motioncond_1 = folder[0]
-Motioncond_2 = folder[1]
+#-------------------------------------------------------------------
+#Shift index of array
 
-file_1 = open(Motioncond_1)
-    file_1.readlines(400)
-   
-file_1.close()
+def shift(shiftArray, shiftTime):
+    for i in range(len(shiftArray)):
+        shiftArray[i] += shiftTime
+    return shiftArray
 
-file_2 = open(motioncond_2)
+#------------------------------------------------------------------
+# Return [names, data[]] first data is MotionCondition_#.csv with [0-18]; the rest is [0-8]
+# This function will first open up MotionCondition_#, based on Condition1 = True/False
+# Use False for condition 2
+# It will then open head motion models for that condition
+# Following up it will append the MotionCondition data to the returnData, this will be in the form of ["MotionCondition_#", [List[0-18]]]
+# After this the synchronization will happen for the head motion models
+# Once synchronized by 0.02 seconds for the corresponding files it will append the data to the returnData in the form of ["FileName", [List[0-8]]]
+# NOTE: The first list index [0] is the time, this will start at 0.0 seconds; the data in the motion files use DUECA time, which starts at some random integer, so this has been altered to 0.0
 
+def getSyncedLists(Condition1 = True): 
+    headData = []
+    fileNames = []
 
+    if Condition1:
+        simData = np.genfromtxt("data/MotionCondition_1.csv", delimiter = ",", skip_header = 1)
+        fileNames.append("MotionCondition_1")
+    else:
+        simData = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_header = 1)
+        fileNames.append("MotionCondition_2")
+
+    for file in os.listdir("data"):
+        if (Condition1 and ("MC1" in file)) or (not Condition1 and ("MC2" in file)):
+            headDat = np.genfromtxt("data/" + file, delimiter = ",", skip_header = 1)
+            headData.append([(headDat[:,0] - headDat[0,0]) * 0.0001, headDat[:,1], headDat[:,2], headDat[:,3], headDat[:,4], headDat[:,5], headDat[:,6], headDat[:,7], headDat[:,8]])
+            fileNames.append(file)
+
+    simTime  = (simData[:,0] - simData[0,0]) * 0.0001
+
+    simData[:,0] = simTime
+
+    returnData = [] #Time, Data points, name
+
+    returnData.append([fileNames[0], [simData[:,0], simData[:,1], simData[:,2], simData[:,3], simData[:,4], simData[:,5], simData[:,6], simData[:,7], simData[:,8], simData[:,9], simData[:,10], simData[:,11], simData[:,12], simData[:,13], simData[:,14], simData[:,15], simData[:,16], simData[:,17], simData[:,18]]])
+
+    for i, data in enumerate(headData):
+        returnDat = data
+
+        if (Condition1 and (i >= 2 and i <= 9)) or (not Condition1 and ((i >= 1 and i <= 4) or i == 8 or i == 10)):
+            shift(returnDat[0], 0.02)
+
+        returnData.append([fileNames[i+1], returnDat])
+
+    return returnData
+
+#HeadMotion:
 # degrees goes from 3 to 5
 # distance goes from 6 to 8
+
+#MotionCondition:
+# degress goes from 4 to 6
+# distance goes from 1 to 3
 
 #-------------------------------------------------------------------------------------
 # change the raw data to actual data
@@ -37,17 +83,39 @@ return
 #-----------------------------------------------------------------------------------------
 # position of the UGP x,y,z inertial -> head reference frame
 
-x_ugp_hf = 
+# input
+cx_in =          #coordinate x in inertial ref          
+cy_in =          #coordinate y in inertial ref 
+cz_in =          #coordinate z in inertial ref 
 
-y_ugp_hf = 
-
-z_ugp_hf = 
+x_in =             #  angle about x 
+y_in =             #  angle about y
+z_in =             #  angle about z
 
 # np.matrix(" ; ; ; ")
 # np.array([], [], [])
 
 # Transform head_reference to body_reference
 
+#- row 1 of transformation matrix
+m_11 = m.cos(y_in)*m.cos(z_in)
+m_12 = m.cos(y_in)*m.sin(z_in)
+m_13 = -m.sin(y_in)
 
+#- row 2 of transformation matrix
+m_21 = m.sin(x_in)*m.sin(y_in)*m.cos(z_in)-m.cos(x_in)*m.sin(z_in)
+m_22 =  m.sin(x_in)*m.sin(y_in)*m.sin(z_in) + m.cos(x_in)*m.cos(z_in)
+m_23 =  m.sin(x_in)*m.cos(y_in)
 
+#- row 3 of transformation matrix
+m_31 =  m.cos(x_in)*m.sin(y_in)*m.cos(z_in) + m.sin(x_in)*m.sin(z_in)
+m_32 =  m.cos(x_in)*m.sin(y_in)*m.sin(z_in) - m.sin(x_in)*m.cos(z_in)
+m_33 =  m.cos(x_in)*m.cos(y_in)
+
+trans_matrix = np.matrix([[m_11,m_12,m_13],[m_21,m_22,m_23],[m_31,m_32,m_33]])
+vec_co_in = np.matrix([cx_in,cy_in,cz_in])
+
+vec_co_br = np.dot(trans_matrix,vec_co_in)
+
+vec_co_hr = 
 # Transform body_reference to inertial_reference

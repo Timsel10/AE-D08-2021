@@ -1,39 +1,39 @@
 import numpy as np
 
-#filename = 'S01_MC2_HeadMotion.csv'
-filename = 'test.txt'
+filename = 'S01_MC2_HeadMotion.csv'
+#filename = 'test.txt'
 
-data = np.genfromtxt(filename, skip_header=1)
+data = np.genfromtxt(filename, delimiter=",", skip_header=1)
 #delimiter=","
 #print(data)
 bad_data_history = [filename]
 frame_lst = []
 
-for i in range(len(data)):
-   frame_lst.append(int(data[i][2]))
+for l in range(len(data)):
+   frame_lst.append(int(data[l][2]))
 
-for i in range(len(frame_lst)):
-   print(i)
+i=0
+while i < len(frame_lst)-6:
+   #print('i:', i)
    if frame_lst[i] == frame_lst[i+1] and frame_lst[i] == frame_lst[i+2] and frame_lst[i] == frame_lst[i+3] and frame_lst[i] == frame_lst[i+4] and frame_lst[i] == frame_lst[i+5]:
       i_list = [i+1,i+2,i+3,i+4,i+5]
       k = 6
       
       while frame_lst[i]== frame_lst[i+k]:
-         print(k)
+         #print('k: ',k)
          i_list.append(i+k)
          k += 1
-      i= i+k
+      i= i+k-1
       
       print('eureka') #lol
       
       for j in i_list: 
          bad_data_history.append(frame_lst[j])
-         print('j:', j)
+         #print('j:', j)
          frame_lst[j] = 0
 
-
-      if i >= (len(frame_lst)-(k+1)):
-         break
+   i += 1
+      
 
 
 #print(frame_lst)
@@ -45,8 +45,12 @@ for n in range(len(frame_lst)):
 
 data_new = np.delete(data, n_lst,0)
 
+np.savetxt("S01_MC2_HeadMotion_new.csv", data_new, delimiter=",")
+
 print(data_new)
 print(bad_data_history)
+
+
 
 
 
