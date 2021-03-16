@@ -30,7 +30,7 @@ def forced_mass_spring_damper(t, y, c, k, x_forced, v_forced):
 
 
 class headMotion:
-    def __init__(self, simMotionArray, headMotionFile):
+    def __init__(self, simMotionArray, headMotionArray, filename):
         """
         Inputs:
         simMotionArray is a numpy array
@@ -39,16 +39,12 @@ class headMotion:
         simMotion path isn't needed to reduce the number of times that file is loaded
         """
         simMotion = simMotionArray
-        headMotion = np.genfromtxt(headMotionFile, skip_header = 1)
+        headMotion = headMotionArary
         headMotion.sync_head_motion()
         simMotion.transform()
         headMotion.transform()
 
-    def sync_head_motion():
-        # to be copied from sync.py or imported and run from there
-        raise NotImplementedError
-
-    def transform():
+    def transform(self):
         # to be copied from transform.py or imported and run from there
         raise NotImplementedError
 

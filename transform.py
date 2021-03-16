@@ -80,22 +80,21 @@ return
 # call function multiple times
 ....
 
-#-----------------------------------------------------------------------------------------
-# position of the UGP x,y,z inertial -> head reference frame
+
+###   position of the UGP x,y,z inertial  (-> body reference frame) -> head reference frame
 
 # input
 cx_in =          #coordinate x in inertial ref          
 cy_in =          #coordinate y in inertial ref 
 cz_in =          #coordinate z in inertial ref 
 
-x_in =             #  angle about x 
-y_in =             #  angle about y
-z_in =             #  angle about z
+x_in =   roll_in         #angle about x 
+y_in =   pitch_in        #angle about y
+z_in =   yaw_in          #angle about z
 
-# np.matrix(" ; ; ; ")
-# np.array([], [], [])
 
-# Transform head_reference to body_reference
+
+#  entries transformation matrix 
 
 #- row 1 of transformation matrix
 m_11 = m.cos(y_in)*m.cos(z_in)
@@ -112,10 +111,20 @@ m_31 =  m.cos(x_in)*m.sin(y_in)*m.cos(z_in) + m.sin(x_in)*m.sin(z_in)
 m_32 =  m.cos(x_in)*m.sin(y_in)*m.sin(z_in) - m.sin(x_in)*m.cos(z_in)
 m_33 =  m.cos(x_in)*m.cos(y_in)
 
-trans_matrix = np.matrix([[m_11,m_12,m_13],[m_21,m_22,m_23],[m_31,m_32,m_33]])
-vec_co_in = np.matrix([cx_in,cy_in,cz_in])
+# transformation matrix
+trans_matrix = np.array([[m_11,m_12,m_13],[m_21,m_22,m_23],[m_31,m_32,m_33]])
 
-vec_co_br = np.dot(trans_matrix,vec_co_in)
 
-vec_co_hr = 
-# Transform body_reference to inertial_reference
+
+# vector x,y,z inertial reference frame
+vec_co_in = np.array([cx_in],[cy_in],[cz_in])
+
+# vector x,y,z in body reference frame
+vec_co_br = np.dot(trans_matrix,vec_co_in) # transformatrix * vector_inertial
+
+# vector x,y,z in head reference frame ( -y_br -> x_hr, -z_b -> y_hr, x_b -> z_hr )
+vec_co_hr = np.array([-vec_co_br[1],[-vec_co_br[2]],[vec_co_br[0]])
+
+
+
+

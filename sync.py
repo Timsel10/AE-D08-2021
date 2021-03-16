@@ -39,3 +39,5 @@ def getSyncedLists(Condition1 = True): # return [timeList, dataList, filenames]
         returnData.append([time, xDotdot, fileNames[i]])
 
     return returnData
+
+
