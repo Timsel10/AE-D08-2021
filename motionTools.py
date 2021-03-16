@@ -2,7 +2,6 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.optimize import least_squares
 from scipy.interpolate import interp1d
-import sync
 
 def forced_mass_spring_damper(t, y, c, k, x_forced, v_forced):
     """
@@ -42,7 +41,6 @@ class headMotion:
         Person = ident_numbers[0]
         simMotion = simMotionArray
         headMotion = headMotionArary
-        headMotion.sync_head_motion()
         simMotion.transform()
         headMotion.transform()
 
@@ -67,7 +65,3 @@ class singleDOFsystem:
     def solveODE(self):
         raise NotImplementedError
         return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
-
-
-
-

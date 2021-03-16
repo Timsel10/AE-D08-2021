@@ -5,7 +5,7 @@ def filter(filename):
     #filename = 'S01_MC2_HeadMotion.csv'
     #filename = 'test.txt'
 
-    data = np.genfromtxt("filtered_data/" + filename, delimiter=",", skip_header=1)
+    data = np.genfromtxt("data/" + filename, delimiter=",", skip_header=1)
     #delimiter=","
     #print(data)
     bad_data_history = [filename]
@@ -47,20 +47,13 @@ def filter(filename):
 
     data_new = np.delete(data, n_lst,0)
 
-    np.savetxt("refiltered_data/" + filename, data_new, delimiter=",")
+    np.savetxt("filtered_data/" + filename, data_new, delimiter=",")
 
     #print(data_new)
     print(bad_data_history)
 
-for filename in os.listdir("filtered_data"):
+for filename in os.listdir("data"):
     if "MC" in filename:
         print(filename)
         filter(filename)
-
-
-
-
-
-
-
 
