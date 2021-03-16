@@ -22,6 +22,7 @@ def shift(shiftArray, shiftTime):
 
 def getSyncedLists(Condition1 = True): 
     headData = []
+
     fileNames = []
 
     if Condition1:

@@ -30,7 +30,7 @@ def forced_mass_spring_damper(t, y, c, k, x_forced, v_forced):
 
 
 class headMotion:
-    def __init__(self, simMotionArray, headMotionArray, filename):
+    def __init__(self, simMotionArray, headMotionArray, ident_numbers):
         """
         Inputs:
         simMotionArray is a numpy array
@@ -38,6 +38,8 @@ class headMotion:
 
         simMotion path isn't needed to reduce the number of times that file is loaded
         """
+        MC = ident_numbers[1]
+        Person = ident_numbers[0]
         simMotion = simMotionArray
         headMotion = headMotionArary
         headMotion.sync_head_motion()
