@@ -33,9 +33,8 @@ class headMotion:
         """
         Inputs:
         simMotionArray is a numpy array
-        headMotionFile is a string which is the path to the headMotionFile
-
-        simMotion path isn't needed to reduce the number of times that file is loaded
+        headMotionArray is a numpy array containing the head motion data
+        ident_numbers is a tuple or list containing [0] is the person [1] is the condition.
         """
         MC = ident_numbers[1]
         Person = ident_numbers[0]

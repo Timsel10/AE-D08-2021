@@ -25,13 +25,13 @@ for i, headMotion in enumerate(headMotions_1):
     headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
     if (i >= 2 and i <= 9):
         headMotion[:,0] += 0.02
-    headMotionSystems.append(motionTools.headMotion(simMotion_1, headMotion, [i + 1, 1]))
+    headMotionSystems.append(motionTools.headMotion(simMotion_1, headMotion, (i + 1, 1)))
 
 for i, headMotion in enumerate(headMotions_2):
     headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
     if ((i >= 1 and i <= 4) or i == 8 or i == 10):
         headMotion[:,0] += 0.02
-    headMotionSystems.append(motionTools.headMotion(simMotion_2, headMotion, [i + 1, 2]))
+    headMotionSystems.append(motionTools.headMotion(simMotion_2, headMotion, (i + 1, 2)))
 
 for system in headMotionSystems:
     system.solve()
