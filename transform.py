@@ -141,7 +141,7 @@ def transforming(cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_i
 
     vec_co_br = np.dot(trans_matrix, vec_co_in) # transformatrix * vector_inertial
     # vector x,y,z in head reference frame ( -y_br -> x_hr, -z_b -> y_hr, x_b -> z_hr )
-    vec_co_hr = np.array([[-vec_co_br[1]],[-vec_co_br[2]],[vec_co_br[0]]])
+    vec_co_hr = np.array([-vec_co_br[1],-vec_co_br[2],vec_co_br[0]])
 
 
     ### veloctiy
@@ -155,7 +155,7 @@ def transforming(cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_i
     omega = np.array([[-q,0,0],[0,-r,0],[0,0,p]])
     neg_vec_co_hr = -1 * np.array([-vec_co_br[1],-vec_co_br[2],vec_co_br[0]])
     test = np.dot(omega,neg_vec_co_hr)
-    test2 = np.array([[-vec_v_br[1]],[-vec_v_br[2]],[vec_v_br[0]]])
+    test2 = np.array([-vec_v_br[1],-vec_v_br[2],vec_v_br[0]])
     vec_v_hr = test2 + test
 
 
@@ -171,7 +171,7 @@ def transforming(cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_i
 
     #acceleration vector head reference
     omega_d =  np.array([[q**2,0,0],[0,r**2,0],[0,0,p**2]])
-    vec_a_hr = np.array([[-vec_a_br[1]],[-vec_a_br[2]],[vec_a_br[0]]]) + np.dot(acc,neg_vec_co_hr) - np.dot(omega_d,neg_vec_co_hr)
+    vec_a_hr = np.array([-vec_a_br[1],-vec_a_br[2],vec_a_br[0]]) + np.dot(acc,neg_vec_co_hr) - np.dot(omega_d,neg_vec_co_hr)
     
     return vec_co_hr, vec_v_hr, vec_a_hr
 
