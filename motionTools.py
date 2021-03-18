@@ -69,4 +69,4 @@ class singleDOFsystem:
 
     def solveODE(self):
         raise NotImplementedError
-        return solve_ivp(forced_mass_spring_damper, self.initialConditions, )
+        return solve_ivp(forced_mass_spring_damper, self.initialConditions)
