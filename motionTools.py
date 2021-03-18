@@ -29,6 +29,12 @@ def forced_mass_spring_damper(t, y, c, k, x_forced, v_forced):
 
 
 class headMotion:
+
+    MC = 0
+    Person = 0
+    simMotion = []
+    headMotionData = []
+
     def __init__(self, simMotionArray, headMotionArray, ident_numbers):
         """
         Inputs:
@@ -36,10 +42,10 @@ class headMotion:
         headMotionArray is a numpy array containing the head motion data
         ident_numbers is a tuple or list containing [0] is the person [1] is the condition.
         """
-        MC = ident_numbers[1]
-        Person = ident_numbers[0]
-        simMotion = simMotionArray
-        headMotion = headMotionArary
+        self.MC = ident_numbers[1]
+        self.Person = ident_numbers[0]
+        self.simMotion = simMotionArray
+        self.headMotionData = headMotionArary
         simMotion.transform()
         headMotion.transform()
 

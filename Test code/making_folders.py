@@ -7,4 +7,3 @@ for i in range(2):
             person = "0" + str(person)
         person = str(person)
         os.mkdir("results/MC" + str(i + 1) + "_S" + person)
-
