@@ -5,19 +5,19 @@ import os
 headMotions_1 = []
 headMotions_2 = []
 
-for fileName in os.listdir("filtered_data"):
-    if "MC1" in fileName:
+for filename in os.listdir("filtered_data"):
+    if "MC1" in filename:
         headMotions_1.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
 
-    if "MC2" in fileName:
-        headMotionNames_2.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
+    if "MC2" in filename:
+        headMotions_2.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
 
 simMotion_1 = np.genfromtxt("data/MotionCondition_1.csv", delimiter = ",", skip_header = 1)
 simMotion_2 = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_header = 1)
 
 
-simMotion_1[:,0] = (simData[:,0] - simData[0,0]) * 0.0001
-simMotion_2[:,0] = (simData[:,0] - simData[0,0]) * 0.0001
+simMotion_1[:,0] = (simMotion_1[:,0] - simMotion_1[0,0]) * 0.0001
+simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 
 headMotionSystems = []
 

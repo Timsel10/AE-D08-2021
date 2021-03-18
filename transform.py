@@ -1,32 +1,35 @@
 import numpy as np
 import os
 
-headMotions_1 = []
-headMotions_2 = []
+print("transform.py running now..")
 
-for fileName in os.listdir("filtered_data"):
-    if "MC1" in fileName:
-        headMotions_1.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
+#headMotions_1 = []
+#headMotions_2 = []
 
-    if "MC2" in fileName:
-        headMotionNames_2.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
+#for filename in os.listdir("filtered_data"):
+#    if "MC1" in filename:
+#        headMotions_1.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
+
+#    if "MC2" in filename:
+#        headMotions_2.append(np.genfromtxt("filtered_data/" + filename, delimiter = ",", skip_header = 1))
 
 simMotion_1 = np.genfromtxt("data/MotionCondition_1.csv", delimiter = ",", skip_header = 1)
 simMotion_2 = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_header = 1)
 
+print("yes")
+simMotion_1[:,0] = (simMotion_1[:,0] - simMotion_1[0,0]) * 0.0001
+simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 
-simMotion_1[:,0] = (simData[:,0] - simData[0,0]) * 0.0001
-simMotion_2[:,0] = (simData[:,0] - simData[0,0]) * 0.0001
+#for i, headMotion in enumerate(headMotions_1):
+#    headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
+#    if (i >= 2 and i <= 9):
+#        headMotion[:,0] += 0.02
 
-for i, headMotion in enumerate(headMotions_1):
-    headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
-    if (i >= 2 and i <= 9):
-        headMotion[:,0] += 0.02
+#for i, headMotion in enumerate(headMotions_2):
+#    headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
+#    if ((i >= 1 and i <= 4) or i == 8 or i == 10):
+#        headMotion[:,0] += 0.02
 
-for i, headMotion in enumerate(headMotions_2):
-    headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
-    if ((i >= 1 and i <= 4) or i == 8 or i == 10):
-        headMotion[:,0] += 0.02
 #1 , 5 ,5 
 #2, 10, 15
 
@@ -65,17 +68,17 @@ for i in range(1, 19):
 
 
 
-    
+print("yes")
 
 
 
-def transformation(data): # data = sim_motion_1 or sim_motion_2
-    return
+# def transformation(data): # data = sim_motion_1 or sim_motion_2
+#     return
 
 ###   position of the UGP x,y,z inertial  (-> body reference frame) -> head reference frame
 
 
-def transformation(data):
+def transformation_data(data):
     # input
     cx_in = data[:,1]        #coordinate x in inertial ref          
     cy_in = data[:,2]        #coordinate y in inertial ref 
@@ -101,7 +104,7 @@ def transformation(data):
     qd = data[:,17]     #pitch acceleration simulator body
     rd = data[:,18]     #yaw acceleration simulator body            
 
-    return cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd
+    return x_in, y_in, z_in, cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd
 
     ###  entries transformation matrix 
 def transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in):
@@ -129,13 +132,14 @@ def transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in):
 
 
    ### tranforming the inertial reference frame -> head reference frame
-def transforming(cx_in, cy_in, cz_in):
+def transforming(cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd, trans_matrix):
 
     ### position
     # vector x,y,z inertial reference frame
     vec_co_in = np.array([[cx_in],[cy_in],[cz_in]])
     # vector x,y,z in body reference frame
-    vec_co_br = np.dot(trans_matrix,vec_co_in) # transformatrix * vector_inertial
+
+    vec_co_br = np.dot(trans_matrix, vec_co_in) # transformatrix * vector_inertial
     # vector x,y,z in head reference frame ( -y_br -> x_hr, -z_b -> y_hr, x_b -> z_hr )
     vec_co_hr = np.array([[-vec_co_br[1]],[-vec_co_br[2]],[vec_co_br[0]]])
 
@@ -145,12 +149,14 @@ def transforming(cx_in, cy_in, cz_in):
     vec_v_in = np.array([[cx_dot_in],[cy_dot_in],[cz_dot_in]])
 
     # velocity vector body frame
-    vec_v_br = np.dot([[trans_matrix,vec_v_in]])
+    vec_v_br = np.dot(trans_matrix,vec_v_in)
 
     # velocity vector head frame
-    omega = np.array([-q,0,0],[0,-r,0],[0,0,p])
-    neg_vec_co_hr = -1 * np.array([[-vec_co_br[1]],[-vec_co_br[2]],[vec_co_br[0]]])
-    vec_v_hr = np.array([[-vec_v_br[1]],[-vec_v_br[2]],[vec_v_br[0]]])+ np.dot(omega,neg_vec_co_hr)
+    omega = np.array([[-q,0,0],[0,-r,0],[0,0,p]])
+    neg_vec_co_hr = -1 * np.array([-vec_co_br[1],-vec_co_br[2],vec_co_br[0]])
+    test = np.dot(omega,neg_vec_co_hr)
+    test2 = np.array([[-vec_v_br[1]],[-vec_v_br[2]],[vec_v_br[0]]])
+    vec_v_hr = test2 + test
 
 
     ### acceleration
@@ -158,13 +164,47 @@ def transforming(cx_in, cy_in, cz_in):
     vec_a_in = np.array([[cx_ddot_in],[cy_ddot_in],[cz_ddot_in]])
 
     # acceleration vector body frame
-    vec_a_br = np.dot([[trans_matrix,vec_a_in]])
+    vec_a_br = np.dot(trans_matrix,vec_a_in)
 
     #acceleration vector head ref frame
     acc = np.array([[-qd,0,0],[0,-rd,0],[0,0,pd]])
 
     #acceleration vector head reference
     omega_d =  np.array([[q**2,0,0],[0,r**2,0],[0,0,p**2]])
-    vec_a_hr = np.array([[-vec_a_br[1]],[-vec_a_br[2]],[vec_a_br[0]]])+ np.dot(acc,neg_vec_co_hr) - np.dot(omega_d,neg_vec_co_hr)
+    vec_a_hr = np.array([[-vec_a_br[1]],[-vec_a_br[2]],[vec_a_br[0]]]) + np.dot(acc,neg_vec_co_hr) - np.dot(omega_d,neg_vec_co_hr)
     
-    return 
+    return vec_co_hr, vec_v_hr, vec_a_hr
+
+
+
+x_in, y_in, z_in, cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd = transformation_data(simMotion_1)
+
+trans_matrix = transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in)
+
+vec_co_hr = []
+vec_v_hr = []
+vec_a_hr = []
+
+for i in [x_in, y_in, z_in, cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd]:
+    print(i.shape)
+
+
+for i in range(len(cx_in)):
+    vec_co_hri, vec_v_hri, vec_a_hri = transforming(cx_in[i], cy_in[i], cz_in[i], cx_dot_in[i], cy_dot_in[i], cz_dot_in[i], cx_ddot_in[i], cy_ddot_in[i], cz_ddot_in[i], p[i], q[i], r[i], pd[i], qd[i], rd[i], trans_matrix[:,:,i])
+    vec_co_hr.append(vec_co_hri)
+    vec_v_hr.append(vec_v_hri)
+    vec_a_hr.append(vec_a_hri)
+    if i % 10000 == 0:
+        print(i)
+
+vec_co_hr = np.array(vec_co_hr)
+vec_v_hr = np.array(vec_v_hr)
+vec_a_hr = np.array(vec_a_hr)
+
+print(vec_co_hr.shape)
+print(vec_v_hr.shape)
+print(vec_a_hr.shape)
+# np.moveaxis(vec_co_hr,)
+# final = np.array()
+
+# np.savetxt("simMotion_1_transformed.csv")
