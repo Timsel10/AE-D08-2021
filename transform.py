@@ -47,7 +47,7 @@ simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 #-------------------------------------------------------------------------------------
 # change the raw data to actual data
 
-step_distance = float(50 / 16383)
+step_distance = float(10**-3 * 50 / 16383)
 step_degree = float(180 / 16383)
 
 

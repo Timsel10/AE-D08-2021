@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-step_distance = float(50 / 16383)
+step_distance = float(10**-3 * 50 / 16383)
 step_degree = float(180 / 16383)
 
 def change_data_raw(column, factor, data): # column = int, factor = int, data = nested list
