@@ -55,28 +55,38 @@ def change_data_raw(column, factor, data): # column = int, factor = int, data = 
     data[:,column] = data[:,column] * factor
     
 
-# call function multiple times
+# Changing from Raw to Real Values
+def real_data_Motion_condition(step_distance, simMotion_1, simMotion_2):
+    for i in range(1, 19):
+        if i in [1,2,3,7,8,9,13,14,15]:
+            change_data_raw(i, step_distance, simMotion_1)
+            change_data_raw(i, step_distance, simMotion_2)
 
-for i in range(1, 19):
-    if i in [1,2,3,7,8,9,13,14,15]:
-        change_data_raw(i, step_distance, simMotion_1)
-        change_data_raw(i, step_distance, simMotion_2)
+        if i in [4,5,6,10,11,12,16,17,18]:
+            change_data_raw(i, step_degree, simMotion_1)
+            change_data_raw(i, step_degree, simMotion_2)
 
-    if i in [4,5,6,10,11,12,16,17,18]:
-        change_data_raw(i, step_degree, simMotion_1)
-        change_data_raw(i, step_degree, simMotion_2)
+def real_data_Head_Motion(data):
+    for i in [6, 7, 8]:
+        change_data_raw(i, step_distance, data)
+    for i in [3, 4, 5]:
+        change_data_raw(i, step_degree, data)
 
 
+for filename in os.listdir("filtered_data"):
+    # folder = list.(os.listdir("filtered_data"))
+    data = np.genfromtxt("filtered_data/" + filename, delimiter = ",")
+
+    real_data_Head_Motion(data)
+
+    np.savetxt("real_data/" + filename, data, delimiter = ",")
+
+    # for in range(len(folder)):
+    #    file = folder[i]
 
 print("yes")
 
-
-
-# def transformation(data): # data = sim_motion_1 or sim_motion_2
-#     return
-
 ###   position of the UGP x,y,z inertial  (-> body reference frame) -> head reference frame
-
 
 def transformation_data(data):
     # input
@@ -130,8 +140,7 @@ def transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in):
     return trans_matrix
 
 
-
-   ### tranforming the inertial reference frame -> head reference frame
+    ### tranforming the inertial reference frame -> head reference frame
 def transforming(cx_in, cy_in, cz_in, cx_dot_in, cy_dot_in, cz_dot_in, cx_ddot_in, cy_ddot_in, cz_ddot_in, p, q, r, pd, qd, rd, trans_matrix):
 
     ### position
@@ -208,3 +217,36 @@ print(vec_a_hr.shape)
 # final = np.array()
 
 # np.savetxt("simMotion_1_transformed.csv")
+
+### Head Coordinates: Head Reference Frame -> Inertial Reference Frame
+
+"""
+input: head in head reference frame
+1) x_hr-> -y_br, y_hr -> -z_br, z_hr -> x_br 
+2) locate the br -> inertial frame with the angles
+output: positioning of the actual head in inertial frame + angles
+"""
+
+# Going from head reference frame to body reference frame 
+
+def Head_Motion_data(data):
+    x_head_hr = data[:,6]
+    y_head_hr = data[:,7]
+    z_head_hr = data[:,8]
+    return x_head_hr,y_head_hr,z_head_hr
+
+def head_position_hr_to_br(x_head_hr,y_head_hr,z_head_hr):
+    x_head_br =  z_head 
+    y_head_br = -1*x_head + 0.55
+    z_head_br = -1*y_head - 1.2075
+    vector_head_body = np.array([[x_head_br],[y_head_br],[z_head_br]])
+    return vector_head_body
+
+def trans_matrix_br_to_in():
+    a = transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in)
+    trans_matrix_br_to_in = np.linalg.inv(a)
+    return trans_matrix_br_to_in
+
+def head_position_br_to_in(trans_matrix_br_to_in, vector_head_body, cx_in, cy_in, cz_in):
+    head_inertial_pre = np.dot(trans_matrix_br_to_in, vector_head_body) + np.array([[cx_in],[cy_in],[cz_in]])
+    return head_inertial_pre
