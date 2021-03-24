@@ -41,16 +41,56 @@ class headMotionSystem:
         self.MC = ident_numbers[1]
         self.Person = ident_numbers[0]
         self.simMotion = simMotionArray
-        self.headMotion = headMotionArray
+        self.headMotionRaw = headMotionArray
         self.results = []
         self.guesses = guesses
         # simMotion.transform()
-        self.headMotion.transform()
+        print("Started transforming: ", end = "")
+        print(ident_numbers)
+
+        self.headMotion = self.transform()
+
+        print("Done transforming")
 
     def transform(self):
-        # to be copied from transform.py or imported and run from there
-        # this needs to take the coordinates in the head reference frame and put them in the inertial frame
-        raise NotImplementedError
+        simMotion = self.simMotion[:,:7]
+        headMotion = self.headMotionRaw
+        simInterpFunction = interp1d(simMotion[:,0], simMotion[:,1:7], axis = 0, kind = "nearest")
+        simInterp = simInterpFunction(headMotion[:,0])
+
+        headMotion[:,3:6] = headMotion[:,3:6] * (np.pi / 16383)
+        headMotion[:,6:9] = headMotion[:,6:9] * (0.50 / 16383)
+
+        headPosHRF = np.empty((len(headMotion), 3))
+        
+        headPosHRF[:,0] = headMotion[:,0]
+        headPosHRF[:,1] = -headMotion[:,1] - 0.55
+        headPosHRF[:,2] = -headMotion[:,2] - 1.2075
+
+        x_angle = simInterp[:,3]
+        y_angle = simInterp[:,4]
+        z_angle = simInterp[:,5]
+
+        #- row 1 of transformation matrix
+        m_11 = np.cos(y_angle)*np.cos(z_angle)
+        m_12 = np.cos(y_angle)*np.sin(z_angle)
+        m_13 = -np.sin(y_angle)
+
+        #- row 2 of transformation matrix
+        m_21 =  np.sin(x_angle)*np.sin(y_angle)*np.cos(z_angle)-np.cos(x_angle)*np.sin(z_angle)
+        m_22 =  np.sin(x_angle)*np.sin(y_angle)*np.sin(z_angle) + np.cos(x_angle)*np.cos(z_angle)
+        m_23 =  np.sin(x_angle)*np.cos(y_angle)
+
+        #- row 3 of transformation matrix
+        m_31 =  np.cos(x_angle)*np.sin(y_angle)*np.cos(z_angle) + np.sin(x_angle)*np.sin(z_angle)
+        m_32 =  np.cos(x_angle)*np.sin(y_angle)*np.sin(z_angle) - np.sin(x_angle)*np.cos(z_angle)
+        m_33 =  np.cos(x_angle)*np.cos(y_angle)
+
+        trans_matrix = np.swapaxes(np.array([[m_11,m_12,m_13],[m_21,m_22,m_23],[m_31,m_32,m_33]]), 0, 2)
+
+        headPosSI = np.squeeze(np.matmul(trans_matrix, np.expand_dims(headPosHRF, headPosHRF.ndim))) + simInterp[:,0:3]
+        
+        return headPosSI
 
     def solve(self):
         for i in range(6):
