@@ -2,7 +2,7 @@ import motionTools
 import numpy as np
 import os
 
-print("Loading Sim Motion Files")
+print("Loading Simulator Motion Files")
 simMotion_1 = np.genfromtxt("data/MotionCondition_1.csv", delimiter = ",", skip_header = 1)
 simMotion_2 = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_header = 1)
 
@@ -18,9 +18,11 @@ headMotions_2 = []
 for filename in os.listdir("filtered_data"):
     if "MC1" in filename:
         headMotions_1.append(np.genfromtxt("filtered_data/" + filename, delimiter = ","))
+        print(filename)
 
     if "MC2" in filename:
         headMotions_2.append(np.genfromtxt("filtered_data/" + filename, delimiter = ","))
+        print(filename)
 
 headMotionSystems = []
 

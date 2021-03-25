@@ -17,6 +17,7 @@ simMotion_1 = np.genfromtxt("data/MotionCondition_1.csv", delimiter = ",", skip_
 simMotion_2 = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_header = 1)
 
 print("yes")
+
 simMotion_1[:,0] = (simMotion_1[:,0] - simMotion_1[0,0]) * 0.0001
 simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 
@@ -47,11 +48,11 @@ simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 #-------------------------------------------------------------------------------------
 # change the raw data to actual data
 
-step_distance = float(10**-3 * 50 / 16383)
-step_degree = float(180 / 16383)
+step_distance = float((10**(-3)) * 50 / 16383)  # [m]
+step_degree = float(180 / 16383)  # [deg]
 
 
-def change_data_raw(column, factor, data): # column = int, factor = int, data = nested list
+def change_data_raw(column, factor, data):
     data[:,column] = data[:,column] * factor
     
 
@@ -76,15 +77,8 @@ def real_data_Head_Motion(data):
 for filename in os.listdir("filtered_data"):
     # folder = list.(os.listdir("filtered_data"))
     data = np.genfromtxt("filtered_data/" + filename, delimiter = ",")
-
     real_data_Head_Motion(data)
-
     np.savetxt("real_data/" + filename, data, delimiter = ",")
-
-    # for in range(len(folder)):
-    #    file = folder[i]
-
-print("yes")
 
 ###   position of the UGP x,y,z inertial  (-> body reference frame) -> head reference frame
 
@@ -118,7 +112,6 @@ def transformation_data(data):
 
     ###  entries transformation matrix 
 def transform_matrix_Angles_gen_MotionCond(x_in, y_in, z_in):
-    
     
     #- row 1 of transformation matrix
     m_11 = np.cos(y_in)*np.cos(z_in)
@@ -218,6 +211,10 @@ print(vec_a_hr.shape)
 
 # np.savetxt("simMotion_1_transformed.csv")
 
+
+
+
+
 ### Head Coordinates: Head Reference Frame -> Inertial Reference Frame
 
 """
@@ -233,13 +230,13 @@ def Head_Motion_data(data):
     x_head_hr = data[:,6]
     y_head_hr = data[:,7]
     z_head_hr = data[:,8]
-    return x_head_hr,y_head_hr,z_head_hr
+    return x_head_hr, y_head_hr, z_head_hr
 
 def head_position_hr_to_br(x_head_hr,y_head_hr,z_head_hr):
     x_head_br =  z_head 
     y_head_br = -1*x_head + 0.55
     z_head_br = -1*y_head - 1.2075
-    vector_head_body = np.array([[x_head_br],[y_head_br],[z_head_br]])
+    vector_head_body = np.array([[x_head_br], [y_head_br], [z_head_br]])
     return vector_head_body
 
 def trans_matrix_br_to_in():
