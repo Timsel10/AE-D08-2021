@@ -29,7 +29,7 @@ simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 #for i, headMotion in enumerate(headMotions_2):
 #    headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
 #    if ((i >= 1 and i <= 4) or i == 8 or i == 10):
-#        headMotion[:,0] += 0.02
+#        headMotion[:,0]+= 0.02
 
 #1 , 5 ,5 
 #2, 10, 15
@@ -210,10 +210,6 @@ print(vec_a_hr.shape)
 # final = np.array()
 
 # np.savetxt("simMotion_1_transformed.csv")
-
-
-
-
 
 ### Head Coordinates: Head Reference Frame -> Inertial Reference Frame
 
