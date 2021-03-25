@@ -10,8 +10,8 @@ simMotion_2 = np.genfromtxt("data/MotionCondition_2.csv", delimiter = ",", skip_
 simMotion_1[:,0] = (simMotion_1[:,0] - simMotion_1[0,0]) * 0.0001
 simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 
-#np.savetxt("real_data/MC1.csv", simMotion_1, delimiter = ",")
-#np.savetxt("real_data/MC2.csv", simMotion_2, delimiter = ",")
+#np.savetxt("real_data/MotionCondition1.csv", simMotion_1, delimiter = ",")
+#np.savetxt("real_data/MotionCondition2.csv", simMotion_2, delimiter = ",")
 
 print("Loading Head Motion Files")
 
@@ -19,8 +19,7 @@ headMotions_1 = []
 headMotions_2 = []
 
 for filename in os.listdir("filtered_data"):
-    if "MC1" in filename:
-        apifughpqeoihg = 0
+    #if "MC1" in filename:
         #headMotions_1.append(np.genfromtxt("filtered_data/" + filename, delimiter = ","))
         #print(filename)
 
