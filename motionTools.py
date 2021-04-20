@@ -111,6 +111,8 @@ class headMotionSystem:
 
 
 class singleDOFsystem:
+    
+
     def __init__(self, simMotion, headMotion, guess):
         self.simMotion = simMotion
         self.initialConditions = headMotion[0,:].tolist()
@@ -122,11 +124,12 @@ class singleDOFsystem:
         print("initialized")
         # it might be interesting to do a cubic interpolation as well later
         # forcing_functions(t) will return a numpy array with the sim's forced position and velocity at time t
-
-
     def solveODE(self, k_and_c):
         print(k_and_c)
-        return solve_ivp(forced_mass_spring_damper, (self.startT, self.endT), self.initialConditions, t_eval = self.simMotion[:,0], args = (k_and_c, self.forcing_functions), vectorized = True)
+        yeet = solve_ivp(forced_mass_spring_damper, (self.startT, self.endT), self.initialConditions, t_eval = self.simMotion[:,0], args = (k_and_c, self.forcing_functions), vectorized = True)
+        if not yeet.y.shape == (2, 400):
+            u = 1
+        return yeet
     
     def residuals(self, k_and_c):
         nonInterpSol = self.solveODE(k_and_c).y

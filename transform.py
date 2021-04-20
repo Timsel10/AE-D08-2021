@@ -49,7 +49,7 @@ simMotion_2[:,0] = (simMotion_2[:,0] - simMotion_2[0,0]) * 0.0001
 # change the raw data to actual data
 
 step_distance = float((10**(-3)) * 50 / 16383)  # [m]
-step_degree = float(180 / 16383)  # [deg]
+step_degree = float( np.pi / 16383)  # [rad]
 
 
 def change_data_raw(column, factor, data):
