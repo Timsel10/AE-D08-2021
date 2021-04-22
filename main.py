@@ -36,13 +36,13 @@ for i, headMotion in enumerate(headMotions_1):
     headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
     if (i >= 2 and i <= 9):
         headMotion[:,0] += 0.02
-    headMotionSystems.append(motionTools.headMotionSystem(simMotion_1, headMotion, (i + 1, 1), [[1000,1000],[1000,1000],[1000,1000],[1000,1000],[1000,1000],[1000,1000]]))
+    headMotionSystems.append(motionTools.headMotionSystem(simMotion_1, headMotion, (i + 1, 1), [[1000,10,0.3]] * 6))
 
 for i, headMotion in enumerate(headMotions_2):
     headMotion[:,0] = (headMotion[:,0] - headMotion[0,0]) * 0.0001
     if ((i >= 1 and i <= 4) or i in [8, 10]):
         headMotion[:,0] += 0.02
-    headMotionSystems.append(motionTools.headMotionSystem(simMotion_2, headMotion, (i + 1, 2), [[1000,1000],[1000,1000],[1000,1000],[1000,1000],[1000,1000],[1000,1000]]))
+    headMotionSystems.append(motionTools.headMotionSystem(simMotion_2, headMotion, (i + 1, 2), [[1000,10,0.3]] * 6))
 
 print("Solving all experiments")
 
