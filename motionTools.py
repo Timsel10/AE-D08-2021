@@ -15,7 +15,7 @@ def forced_mass_spring_damper(t, y, k_and_c, forcing_functions):
     v_forced is an interp1d function which returns a v_forced value for a given t within the domain
 
     Output:
-    dydt is a list [x'', x']
+    dydt is a list [x', x'']
 
     Description:
     This is the function required by the solve
@@ -27,7 +27,7 @@ def forced_mass_spring_damper(t, y, k_and_c, forcing_functions):
     k, c, xn = k_and_c
     x_forced, v_forced = forcing_functions(t)
     x, x_prime = y
-    dydt = [x_prime, -c * x_prime - k * (x - xn) - (x_forced - xn) * k - v_forced * c]
+    dydt = [x_prime, -c * (x_prime - v_forced) - k * ((x - xn) - x_forced)]
     return dydt
 
 class headMotionSystem:
@@ -42,8 +42,8 @@ class headMotionSystem:
         """
         self.MC = ident_numbers[1]
         self.Person = ident_numbers[0]
-        self.simMotion = simMotionArray[:8000]
-        self.headMotionRaw = headMotionArray[:2000]
+        self.simMotion = simMotionArray[:80000]
+        self.headMotionRaw = headMotionArray[:20000]
         self.results = []
         self.guesses = guesses
         # simMotion.transform()
@@ -141,20 +141,24 @@ class singleDOFsystem:
 
     def solveODE(self, k_and_c):
         print(k_and_c)
-        return solve_ivp(forced_mass_spring_damper, (self.startT, self.endT), self.initialConditions, t_eval = self.simMotion[:,0], args = (k_and_c, self.forcing_functions), vectorized = True)
+        return solve_ivp(forced_mass_spring_damper, (self.startT, self.endT), self.initialConditions, t_eval = self.simMotion[:,0], args = (k_and_c, self.forcing_functions))
     
     def residuals(self, k_and_c):
         sol = self.solveODE(k_and_c)
         nonInterpSol = sol.y
-        plt.scatter(self.headMotion[:,0], self.headMotion[:,1], 5, label="real", marker = "x")
-        plt.scatter(sol.t, nonInterpSol[0], 5, label="model", marker = "^")
-        #plt.scatter(sol.t, nonInterpSol[1], 4, label="model Velocity", marker = "^")
+        plshelp = self.headMotion[:,1] - self.forcing_functions(self.headMotion[:,0])[0]
+        plt.scatter(sol.t, self.simMotion[:,1], 5, label="sim motion pos", marker = "x")
+        plt.scatter(self.headMotion[:,0], plshelp, 5, label="real", marker = "x")
+        # plt.scatter(self.headMotion[:-1,0], np.diff(self.headMotion[:,1])/np.diff(self.headMotion[:,0]) - self.forcing_functions(self.headMotion[:-1,0])[0], 5, label="real Velocity", marker = "x")
+        plt.scatter(self.headMotion[:-1,0], np.diff(plshelp)/np.diff(self.headMotion[:,0]), 5, label="real Velocity2", marker = "x")
+        plt.scatter(sol.t, nonInterpSol[0] - self.forcing_functions(sol.t)[0], 5, label="model", marker = "^")
+        plt.scatter(sol.t, nonInterpSol[1] - self.forcing_functions(sol.t)[1], 4, label="model Velocity", marker = "^")
         plt.title(str(k_and_c))
         plt.legend()
         plt.show()
         plt.clf()
-        solution = interp1d(self.simMotion[:,0], nonInterpSol[0], 'nearest')
+        solution = interp1d(sol.t, nonInterpSol[0], 'nearest')
         return solution(self.headMotion[:,0]) - self.headMotion[:,1]
 
     def solve(self):
-        return least_squares(self.residuals, self.guess, verbose = 2)
+        return least_squares(self.residuals, self.guess, verbose = 2, bounds = ([0.0, 0.0, -2.0], [np.inf, np.inf, 2.0]))
