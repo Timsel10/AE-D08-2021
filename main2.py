@@ -17,11 +17,11 @@ headMotions_1 = []
 headMotions_2 = []
 
 for filename in os.listdir("filtered_data"):
-    if "MC1" in filename and "S01" in filename:
+    if "MC1" in filename: # and "S03" in filename:
         headMotions_1.append(np.genfromtxt("data/" + filename, delimiter = ",", skip_header = 1))
         print(filename)
 
-    if "MC2" in filename and "S01" in filename:
+    if "MC2" in filename: # and "S03" in filename:
         headMotions_2.append(np.genfromtxt("data/" + filename, delimiter = ",", skip_header = 1))
         print(filename)
 
