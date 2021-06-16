@@ -51,7 +51,7 @@ class headMotionSystem:
          
         self.headMotion = self.transform()
 
-        print("Done transforming:  Motion condition: "+ str(self.MC) + "; Person: " + str(self.Person))
+        print("Done transforming: Motion condition: "+ str(self.MC) + "; Person: " + str(self.Person))
 
     def transform(self):
         simMotion = self.simMotion[:,:7]
@@ -77,11 +77,12 @@ class headMotionSystem:
         headPosHRF[:,0] = headMotion[:,8]
         headPosHRF[:,1] = -headMotion[:,6] - 0.55
         headPosHRF[:,2] = -headMotion[:,7] - 1.2075
-
+        
+        #----------------------Rotation to SIRF---------------------
         x_angle = simInterp[:,3]
         y_angle = simInterp[:,4]
         z_angle = simInterp[:,5]
-
+        
         ##- row 1 of transformation matrix
         m_11 = np.cos(y_angle)*np.cos(z_angle)
         m_12 = np.cos(y_angle)*np.sin(z_angle)
@@ -96,10 +97,14 @@ class headMotionSystem:
         m_31 =  np.cos(x_angle)*np.sin(y_angle)*np.cos(z_angle) + np.sin(x_angle)*np.sin(z_angle)
         m_32 =  np.cos(x_angle)*np.sin(y_angle)*np.sin(z_angle) - np.sin(x_angle)*np.cos(z_angle)
         m_33 =  np.cos(x_angle)*np.cos(y_angle)
-
+        
         trans_matrix = np.swapaxes(np.array([[m_11,m_12,m_13],[m_21,m_22,m_23],[m_31,m_32,m_33]]), 0, 2)
 
-        headPosSI = np.squeeze(np.matmul(trans_matrix, np.expand_dims(headPosHRF, headPosHRF.ndim))) 
+        headPosSI = np.squeeze(np.matmul(trans_matrix, np.expand_dims(headPosHRF, headPosHRF.ndim)))
+        
+        
+        #-----------------Translation to SIRF----------------
+        
         headPosSI = headPosSI + simInterp[:,0:3]
         
         #-------------Angle tranformation------------
@@ -117,8 +122,8 @@ class headMotionSystem:
         return headMotionSI
 
     def solve(self):
-        for i in range(2):
-            # initializes DOF, solves it and then appends to results
+        for i in range(6):
+            # splits up into each DOF, solves it and then appends to results
             print("solving: dimension", i)
             self.results.append(singleDOFsystem(self.simMotion[:,[0, i + 1, i + 7]], self.headMotion[:,[0, i + 3]], self.guesses[i]).solve())
         print(self.results)

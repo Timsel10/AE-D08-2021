@@ -4,6 +4,7 @@ from scipy.misc import derivative
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
+import tikzplotlib
 
 def forced_mass_spring_damper(t, y, k_and_c, forcing_functions):
     """
@@ -28,7 +29,7 @@ def forced_mass_spring_damper(t, y, k_and_c, forcing_functions):
     k, c, xn = k_and_c
     x_forced, v_forced = forcing_functions(t)
     x, x_prime = y
-    dydt = [x_prime, -c * (x_prime - v_forced) - k * ((x - xn) - x_forced)]
+    dydt = [x_prime, -c * (x_prime - v_forced) - k * ((x) - x_forced) + xn]
     return dydt
 
 class headMotionSystem:
@@ -79,7 +80,7 @@ class headMotionSystem:
         simInterp = simInterpFunction(headMotion[:,0])
         
 
-        np.savetxt("real_data/MC" + str(self.MC) + "HM" +  str(self.Person).zfill(2) + ".csv", headMotion, delimiter = ",")
+        # np.savetxt("real_data/MC" + str(self.MC) + "HM" +  str(self.Person).zfill(2) + ".csv", headMotion, delimiter = ",")
         
         #-------------Position transformation------------
         headPosHRF = np.empty((len(headMotion), 3))
@@ -150,8 +151,8 @@ class headMotionSystem:
     def solve(self):
         for i in range(6):
             print("solving: dimension", i)
-            self.results.append(singleDOFsystem(self.simMotion[:,[0, i + 1, i + 7]], self.headMotion[:,[0, i + 3]]).solve())
-        print(self.results)
+            if i == 3:
+                self.results.append(singleDOFsystem(self.simMotion[:,[0, i + 1, i + 7]], self.headMotion[:,[0, i + 3]]).solve())
 
 
 class singleDOFsystem:
@@ -159,14 +160,18 @@ class singleDOFsystem:
         self.simMotion = simMotion
         self.initialConditions = [headMotion[0,1], 0.0]
         self.headMotion = headMotion
+        # print(headMotion)
         self.forcing_functions = interp1d(simMotion[:,0], simMotion[:,[1,2]].T)
 
     def solve(self):
+        # Trimming simulator motion to size of headmotion
         max_headTime = self.headMotion[-1,0]
         i = len(self.simMotion) - 1
         while self.simMotion[i,0] > max_headTime:
             i -= 1
         simMotion = self.simMotion[3:i]
+        
+        
         t = (simMotion.T)[0]
         xs = (simMotion.T)[1]
         xdots = (simMotion.T)[2]
@@ -189,6 +194,8 @@ class singleDOFsystem:
         A = np.array([xs - xh, xdots - xdoth, np.ones(xs.shape)]).T
         k_and_c, residuals, rank, s = np.linalg.lstsq(A, xdotdot, rcond=None)
         
+        # xdotdot = A * k_and_c
+        
         # print(residuals)
         
         # xdotdotmodel = np.matmul(A, k_and_c)
@@ -201,21 +208,38 @@ class singleDOFsystem:
         
         # return k_and_c
         
+        # plt.figure(figsize=(8, 5), dpi = 250)
         
+        mint = 510 #500
+        maxt = 540 #600
         
-        # sol = solve_ivp(forced_mass_spring_damper, (t[0], t[-1]), [xh[0], xdoth[0]], t_eval = t, args = (k_and_c, self.forcing_functions))
-        # nonInterpSol = sol.y
-        # plshelp = xh - self.forcing_functions(t)[0]
-        # # plt.scatter(t, xs, 5, label="sim motion pos", marker = "x")
-        # plt.scatter(t, plshelp, 5, label="real", marker = "x")
-        # # plt.scatter(self.headMotion[:-1,0], np.diff(self.headMotion[:,1])/np.diff(self.headMotion[:,0]) - self.forcing_functions(self.headMotion[:-1,0])[0], 5, label="real Velocity", marker = "x")
+        plt.xlabel("Time [s]")
+        plt.ylabel("Roll Attitude of Head Motion in SIRF [rad]")
+        
+        sol = solve_ivp(forced_mass_spring_damper, (t[0], t[-1]), [xh[0], xdoth[0]], t_eval = t, args = (k_and_c, self.forcing_functions))
+        nonInterpSol = sol.y
+        plshelp = xh - self.forcing_functions(t)[0]
+        
+        indices1 = np.where(np.all([t>mint, t<maxt], axis=0))
+        t = t[indices1][::10]
+        plshelp = plshelp[indices1][::10]
+        
+        indices2 = np.where(np.all([sol.t>mint, sol.t<maxt], axis=0))
+        t2 = sol.t[indices2][::10]
+        plshelp2 = (nonInterpSol[0] - self.forcing_functions(sol.t)[0])[indices2][::10]
+        
+        # plt.scatter(t, xs, 5, label="sim motion pos", marker = "x")
+        plt.scatter(t, plshelp, 5, label="Real", marker = "x")
+        # plt.scatter(self.headMotion[:-1,0], np.diff(self.headMotion[:,1])/np.diff(self.headMotion[:,0]) - self.forcing_functions(self.headMotion[:-1,0])[0], 5, label="real Velocity", marker = "x")
         # plt.scatter(t, xdoth, 5, label="real Velocity", marker = "x")
-        # plt.scatter(sol.t, nonInterpSol[0] - self.forcing_functions(sol.t)[0], 5, label="integrated model", marker = "^")
-        # plt.scatter(sol.t, nonInterpSol[1] - self.forcing_functions(sol.t)[1], 4, label="integrated model Velocity", marker = "^")      
+        plt.scatter(t2, plshelp2, 5, label="Model Integrated", marker = "^")
+        # plt.scatter(sol.t, nonInterpSol[1] - self.forcing_functions(sol.t)[1], 4, label="integrated model Velocity", marker = "^")
+        plt.xlim(left = mint, right = maxt) #500, 600
         # plt.title(str(k_and_c))
-        # plt.legend()
+        plt.legend()
         # plt.show()
         # plt.clf()
-        
-        return k_and_c
-
+        # plt.tight_layout()
+        tikzplotlib.save("MC2P2.tex")
+        # plt.savefig("test.jpeg")
+        return list(k_and_c) + list(residuals)
